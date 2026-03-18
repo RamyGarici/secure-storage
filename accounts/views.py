@@ -35,23 +35,32 @@ class MeView(APIView):
 
 class LogoutView(APIView):
     permission_classes = [IsAuthenticated]
+
     def post(self, request, *args, **kwargs):
-        if self.request.data.get("all"):
-            token : OutstandingToken
-            for token in OutstandingToken.objects.filter(user =request.user):
-                _,_ = BlacklistedToken.objects.create(token = token)
+
+        if request.data.get("all"):
+            token: OutstandingToken
+            for token in OutstandingToken.objects.filter(user=request.user):
+                BlacklistedToken.objects.get_or_create(token=token)
+
             return Response({
                 "message": "All devices logged out."
             })
-        refresh_token= self.request.data.get('refresh_token')
-        token = RefreshToken(token=refresh_token)
-        token.blacklist()
-        return Response(
-            {
 
-                "message": "Your device has been logged out."
-            }
-        )
+        refresh_token = request.data.get('refresh_token')
+
+        if not refresh_token:
+            return Response({"error": "Refresh token required"}, status=400)
+
+        try:
+            token = RefreshToken(refresh_token)
+            token.blacklist()
+        except Exception:
+            return Response({"error": "Invalid token"}, status=400)
+
+        return Response({
+            "message": "Your device has been logged out."
+        })
 
             
 
