@@ -41,6 +41,7 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'accounts',
+    'files',
     'rest_framework_simplejwt.token_blacklist',
 ]
 
@@ -156,3 +157,6 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
+MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_URL = '/media/'
+
