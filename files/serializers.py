@@ -15,3 +15,9 @@ class FileUploadSerializer(serializers.ModelSerializer):
             filename = validated_data.get("filename", validated_data["file"].name)
         )
         return file
+    
+
+class FileSerializer(serializers.ModelSerializer):
+    class Meta :
+        model= File
+        fields = ["id", "filename","file","created_at"]
