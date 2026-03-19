@@ -36,7 +36,7 @@ class FileView(APIView):
                             status= status.HTTP_404_NOT_FOUND)
         file.delete()
         return Response({"message":"File deleted successfully"},
-                        status=status.HTTP_204_NO_CONTENT)
+                        status=status.HTTP_200_OK)
     
 
        
