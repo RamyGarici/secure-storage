@@ -1,5 +1,6 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from django.http import FileResponse
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from .serializers import FileUploadSerializer, FileSerializer
@@ -39,4 +40,16 @@ class FileView(APIView):
                         status=status.HTTP_200_OK)
     
 
-       
+class FileDownloadView(APIView):
+    permission_classes = [IsAuthenticated]
+    def get(self, request, id):
+        try:
+            file_obj = File.objects.get(id=id, owner= request.user)
+        except File.DoesNotExist:
+            return Response({"message":"File not found"},
+                            status= status.HTTP_404_NOT_FOUND)
+        document = open(file_obj.file.path, "rb")
+        return FileResponse(document, as_attachment=True, filename=file_obj.filename)
+        
+
+        
