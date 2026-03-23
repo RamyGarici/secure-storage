@@ -5,6 +5,8 @@ from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from .serializers import FileUploadSerializer, FileSerializer
 from .models import File
+from .crypto import decrypt
+from io import BytesIO
 
 
 class FileUploadView(APIView):
@@ -45,11 +47,19 @@ class FileDownloadView(APIView):
     def get(self, request, id):
         try:
             file_obj = File.objects.get(id=id, owner= request.user)
+            file_obj.file.open("rb")
+            encrypted_data = file_obj.file.read()
+            file_obj.file.close()
+
         except File.DoesNotExist:
             return Response({"message":"File not found"},
                             status= status.HTTP_404_NOT_FOUND)
-        document = open(file_obj.file.path, "rb")
-        return FileResponse(document, as_attachment=True, filename=file_obj.filename)
+        
+        file_key =file_obj.key
+        file_tag = file_obj.tag
+        file_iv = file_obj.iv
+        decrypted_file= decrypt(encrypted_data, file_key, file_iv, file_tag)
+        return FileResponse(BytesIO(decrypted_file), as_attachment=True, filename=file_obj.filename)
         
 
         
