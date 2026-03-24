@@ -9,7 +9,8 @@ class File(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     tag = models.BinaryField()
     iv = models.BinaryField()
-    key=models.BinaryField()
+    encrypted_key=models.BinaryField()
 
     def __str__(self):
         return self.filename
+  
