@@ -2,6 +2,7 @@ from rest_framework import serializers
 from .models import File
 import os
 from .crypto import encrypt
+from .crypto_utils import encrypt_key_with_rsa
 from django.core.files.base import ContentFile
 
 
@@ -24,6 +25,7 @@ class FileUploadSerializer(serializers.ModelSerializer):
 
         key = os.urandom(32)
         encrypted_file,iv,tag = encrypt(document,key)
+        encrypted_key = encrypt_key_with_rsa(key)
 
         encrypted_content = ContentFile(
             encrypted_file,
@@ -35,7 +37,7 @@ class FileUploadSerializer(serializers.ModelSerializer):
             owner = request.user,
             file = encrypted_content,
             filename = validated_data.get("filename", uploaded_file.name),
-            key = key,
+            encrypted_key = encrypted_key,
             iv=iv,
             tag=tag
             

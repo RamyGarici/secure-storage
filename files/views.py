@@ -6,6 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from .serializers import FileUploadSerializer, FileSerializer
 from .models import File
 from .crypto import decrypt
+from .crypto_utils import decrypt_key_with_rsa
 from io import BytesIO
 
 
@@ -55,9 +56,11 @@ class FileDownloadView(APIView):
             return Response({"message":"File not found"},
                             status= status.HTTP_404_NOT_FOUND)
         
-        file_key =file_obj.key
+        file_key =decrypt_key_with_rsa(file_obj.encrypted_key)
         file_tag = file_obj.tag
         file_iv = file_obj.iv
+        
+       
         decrypted_file= decrypt(encrypted_data, file_key, file_iv, file_tag)
         return FileResponse(BytesIO(decrypted_file), as_attachment=True, filename=file_obj.filename)
         
